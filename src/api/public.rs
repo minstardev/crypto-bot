@@ -57,6 +57,34 @@ impl UpbitClient {
         Ok(resp)
     }
 
+    /// Fetch many minute candles via pagination. Returns chronological order (oldest first).
+    pub async fn candles_minutes_paginated(
+        &self,
+        unit: u32,
+        market: &str,
+        total: usize,
+    ) -> Result<Vec<Candle>> {
+        const BATCH: u32 = 200;
+        let mut acc: Vec<Candle> = Vec::with_capacity(total);
+        let mut to: Option<String> = None;
+        while acc.len() < total {
+            let want = ((total - acc.len()) as u32).min(BATCH);
+            let to_ref = to.as_deref();
+            let mut batch = self.candles_minutes(unit, market, want, to_ref).await?;
+            if batch.is_empty() {
+                break;
+            }
+            // Upbit returns newest first. Use the oldest candle's KST time as next `to`.
+            let oldest = batch.last().unwrap().clone();
+            to = Some(oldest.candle_date_time_kst.replace('T', " "));
+            acc.append(&mut batch);
+            tokio::time::sleep(std::time::Duration::from_millis(150)).await;
+        }
+        acc.sort_by_key(|c| c.timestamp);
+        acc.dedup_by_key(|c| c.timestamp);
+        Ok(acc)
+    }
+
     pub async fn candles_days(
         &self,
         market: &str,

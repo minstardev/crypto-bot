@@ -6,12 +6,22 @@ use crate::backtest::metrics::{Metrics, compute};
 pub struct StrategyReport {
     pub result: BacktestResult,
     pub metrics: Metrics,
+    pub trend: Option<String>,
 }
 
 impl StrategyReport {
     pub fn from_result(result: BacktestResult) -> Self {
         let metrics = compute(&result);
-        Self { result, metrics }
+        Self {
+            result,
+            metrics,
+            trend: None,
+        }
+    }
+
+    pub fn with_trend(mut self, trend: impl Into<String>) -> Self {
+        self.trend = Some(trend.into());
+        self
     }
 }
 

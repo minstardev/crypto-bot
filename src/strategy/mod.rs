@@ -1,6 +1,17 @@
 use crate::model::Candle;
 
+pub mod bollinger_reversion;
 pub mod buy_and_hold;
+pub mod indicators;
+pub mod pullback;
+pub mod regime_switcher;
+pub mod rsi_reversion;
+
+pub use bollinger_reversion::BollingerReversion;
+pub use buy_and_hold::BuyAndHold;
+pub use pullback::Pullback;
+pub use regime_switcher::RegimeSwitcher;
+pub use rsi_reversion::RsiReversion;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Signal {

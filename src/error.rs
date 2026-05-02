@@ -22,6 +22,12 @@ pub enum BotError {
 
     #[error("Order error: {0}")]
     Order(String),
+
+    #[error("Notion API error: {0}")]
+    Notion(String),
+
+    #[error("Discord error: {0}")]
+    Discord(String),
 }
 
 pub type Result<T> = std::result::Result<T, BotError>;

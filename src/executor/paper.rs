@@ -15,6 +15,7 @@ pub struct Trade {
     pub fee: f64,
     pub cash_after: f64,
     pub position_after: f64,
+    pub entry_price: Option<f64>,
 }
 
 #[derive(Debug, Clone)]
@@ -89,10 +90,12 @@ impl PaperExecutor {
                         fee,
                         cash_after: self.cash,
                         position_after: self.position,
+                        entry_price: None,
                     });
                 }
             }
             Signal::Sell { ratio } if ratio > 0.0 && self.position > 0.0 => {
+                let entry = self.avg_buy_price;
                 let r = ratio.clamp(0.0, 1.0);
                 let sell_volume = self.position * r;
                 let fill = price * (1.0 - self.slippage_rate);
@@ -112,6 +115,7 @@ impl PaperExecutor {
                     fee,
                     cash_after: self.cash,
                     position_after: self.position,
+                    entry_price: Some(entry),
                 });
             }
             _ => {}
